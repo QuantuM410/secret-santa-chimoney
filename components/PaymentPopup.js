@@ -38,9 +38,9 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
   const handleConfirmmomoPayment = async () => {
     try {
       const paymentResponse = await initiateMomoPayment(momoformData.country, momoformData.phone, momoformData.valueInUSD, momoformData.momoCode);
-      console.log('DATA FETCHED', paymentResponse)
-      console.log('DATA FETCHED', paymentResponse.data.chimoneys[0].issueID)
-      console.log('DATA FETCHED', paymentResponse.status)
+      // console.log('DATA FETCHED', paymentResponse)
+      // console.log('DATA FETCHED', paymentResponse.data.chimoneys[0].issueID)
+      // console.log('DATA FETCHED', paymentResponse.status)
       if (paymentResponse.status === 'success') {
         setPaymentStatus('Payment Successful!');
         console.log(paymentStatus);
@@ -77,14 +77,14 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
       const paymentResponse = await initiateChimoneyPayment(chimoneyformData.email, chimoneyformData.phone, chimoneyformData.valueInUSD);
 
       if (paymentResponse.status === 'success') {
-        console.log('issue id', paymentResponse.data.payouts.issueID)
+        // console.log('issue id', paymentResponse.data.payouts.issueID)
         const verifyResponse = await verifyPayment(paymentResponse.data.payouts.issueID);
-        console.log('VERIFY RESPONSE', verifyResponse)
+        // console.log('VERIFY RESPONSE', verifyResponse)
         if (verifyResponse && verifyResponse.status === 'success') {
           setPaymentStatus('Payment Successful!');
           console.log(paymentStatus);
         } else {
-          console.log(verifyResponse);
+          // console.log(verifyResponse);
           setPaymentStatus('Payment Verification Failed!');
           console.log(paymentStatus);
         }

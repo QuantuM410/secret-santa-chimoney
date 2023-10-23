@@ -1,6 +1,6 @@
 
 const BaseUrl = 'https://api-v2-sandbox.chimoney.io/v0.2';
-const API_KEY = 'd81b7c9f024267eec71c8ddfe800fba0ba414ab97dc835c009363604f274fd8e'
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 
 const globalOptions = {
