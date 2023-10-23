@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { initiateMomoPayment, initiateChimoneyPayment, verifyPayment } from '@/utility';
+import PaymentVerification from './paymentverification';
 
 
 
-const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
+const PaymentPopup = ({ onClose }) => {
 
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedMomoCode, setSelectedMomoCode] = useState('');
+  const [showverificationPopup, setShowVerificationPopup] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
-  const [paymentStatus, setPaymentStatus] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState(false);
 
   const [chimoneypopupVisible, setchimoneyPopupVisible] = useState(false);
   const [chimoneyformData, setchimoneyFormData] = useState({
@@ -17,6 +20,8 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
     valueInUSD: '',
   });
 
+  const [airtimepopupVisible, setairtimePopupVisible] = useState(false);
+  const [bankpopupVisible, setbankPopupVisible] = useState(false);
 
   const [momopopupVisible, setmomoPopupVisible] = useState(false);
   const [momoformData, setmomoFormData] = useState({
@@ -26,7 +31,12 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
     momoCode: '',
   });
 
-
+  const handlebankPayment = () => {
+    setbankPopupVisible(true);
+  }
+  const handleairtimePayment = () => {
+    setairtimePopupVisible(true);
+  }
   const handlemomoPayment = () => {
     setmomoPopupVisible(true);
   }
@@ -36,43 +46,32 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
   };
 
   const handleConfirmmomoPayment = async () => {
+    setShowLoader(true);
+    setShowVerificationPopup(true);
     try {
       const paymentResponse = await initiateMomoPayment(momoformData.country, momoformData.phone, momoformData.valueInUSD, momoformData.momoCode);
-      // console.log('DATA FETCHED', paymentResponse)
-      // console.log('DATA FETCHED', paymentResponse.data.chimoneys[0].issueID)
-      // console.log('DATA FETCHED', paymentResponse.status)
-      if (paymentResponse.status === 'success') {
-        setPaymentStatus('Payment Successful!');
-        console.log(paymentStatus);
-      } else {
-        setPaymentStatus('Payment Failed!');
-        console.log(paymentStatus);
-      }
-      // if (paymentResponse.status === 'success') {
-      //   const verifyResponse = await verifyPayment(paymentResponse.data.chimoneys[0].issueID);
-      //   console.log('VERIFY RESPONSE', verifyResponse)
-      //   if (verifyResponse && verifyResponse.status === 'success') {
-      //     setPaymentStatus('Payment Successful!');
-      //     console.log(paymentStatus);
-      //   } else {
-      //     console.log(verifyResponse);
-      //     setPaymentStatus('Payment Verification Failed!');
-      //     console.log(paymentStatus);
-      //   }
-      // } else {
-      //   setPaymentStatus('Payment Failed!');
-      //   console.log(paymentStatus);
-      // }
 
+      if (paymentResponse.status === 'success') {
+        setShowLoader(false);
+        setPaymentStatus(true);
+        // console.log(paymentStatus);
+      } else {
+        setShowLoader(false);
+        setPaymentStatus(false);
+        // console.log(paymentStatus);
+      }
     } catch (error) {
+      setShowLoader(false);
       console.error(error);
-      setPaymentStatus('Payment Failed!');
-      console.log(paymentStatus);
+      setPaymentStatus(false);
+      // console.log(paymentStatus);
     }
   }
 
 
   const handleConfirmChimoneyPayment = async () => {
+    setShowLoader(true);
+    setShowVerificationPopup(true);
     try {
       const paymentResponse = await initiateChimoneyPayment(chimoneyformData.email, chimoneyformData.phone, chimoneyformData.valueInUSD);
 
@@ -81,21 +80,25 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
         const verifyResponse = await verifyPayment(paymentResponse.data.payouts.issueID);
         // console.log('VERIFY RESPONSE', verifyResponse)
         if (verifyResponse && verifyResponse.status === 'success') {
-          setPaymentStatus('Payment Successful!');
-          console.log(paymentStatus);
+          setShowLoader(false);
+          setPaymentStatus(true);
+          // console.log(paymentStatus);
         } else {
           // console.log(verifyResponse);
-          setPaymentStatus('Payment Verification Failed!');
-          console.log(paymentStatus);
+          setShowLoader(false);
+          setPaymentStatus(false);
+          // console.log(paymentStatus);
         }
       } else {
-        setPaymentStatus('Payment Failed!');
-        console.log(paymentStatus);
+        setShowLoader(false);
+        setPaymentStatus(false);
+        // console.log(paymentStatus);
       }
     } catch (error) {
+      setShowLoader(false);
       console.error(error);
-      setPaymentStatus('Payment Failed!');
-      console.log(paymentStatus);
+      setPaymentStatus(false);
+      // console.log(paymentStatus);
     }
   };
 
@@ -178,7 +181,13 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
               </div>
               <div className='text-[70px]'>🎅</div>
             </div>
-            <div className="text-red-500 font-bold">{paymentStatus}</div>
+            <div className="text-red-500 font-bold">
+              {showverificationPopup && <PaymentVerification
+                verificationStatus={paymentStatus}
+                onClose={() => setShowVerificationPopup(false)}
+                isLoading={showLoader}
+              />}
+            </div>
             <div className='flex justify-between mt-2'>
 
               <button
@@ -251,7 +260,13 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
               </div>
               <div className='text-[70px]'>🎅</div>
             </div>
-            <div className="text-red-500 font-bold">{paymentStatus}</div>
+            <div className="text-red-500 font-bold">
+              {showverificationPopup && <PaymentVerification
+                verificationStatus={paymentStatus}
+                onClose={() => setShowVerificationPopup(false)}
+                isLoading={showLoader}
+              />}
+            </div>
             <div className='flex justify-between mt-2'>
 
               <button
@@ -268,6 +283,28 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
               </button>
             </div>
           </div>
+        ) : airtimepopupVisible ? (
+          <div className='text-white text-center font-bold '>
+            Airtime Payment is still under development
+            <div className='text-[100px]'>🎅</div>
+            <button
+              className="mt-4 bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-gray-500 bg duration-150"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
+        ) : bankpopupVisible ? (
+          <div className='text-white text-center font-bold '>
+            Bank Payment is still under development
+            <div className='text-[100px]'>🎅</div>
+            <button
+              className="mt-4 bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-gray-500 bg duration-150"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
         ) : (
           <div className="mb-4">
             <div className="flex justify-between">
@@ -278,13 +315,13 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <button
                   className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-red-500 bg duration-150"
-                  onClick={() => onPaymentOptionSelect('bank')}
+                  onClick={handlebankPayment}
                 >
                   Bank
                 </button>
                 <button
                   className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-red-500 bg duration-150"
-                  onClick={() => onPaymentOptionSelect('airtime')}
+                  onClick={handleairtimePayment}
                 >
                   Airtime
                 </button>
@@ -310,13 +347,13 @@ const PaymentPopup = ({ onClose, onPaymentOptionSelect }) => {
 
             </div>
 
-          </div>
+          </div >
 
 
         )}
 
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

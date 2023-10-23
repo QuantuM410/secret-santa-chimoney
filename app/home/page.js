@@ -8,12 +8,6 @@ const HomePage = () => {
     const handlePayoutInitiation = () => {
         setShowPaymentPopup(true);
     }
-
-    const handlePaymentOptionSelect = (option) => {
-        console.log(`Selected Payment Option: ${option}`);
-        setShowPaymentPopup(false);
-    }
-
     return (
         <div className="h-screen flex flex-col justify-center items-center overflow-hidden">
             <h1 className="text-6xl font-semibold absolute top-10 text-center w-full">Secret Santa🎅</h1>
@@ -30,7 +24,6 @@ const HomePage = () => {
                 {showPaymentPopup && (
                     <PaymentPopup
                         onClose={() => setShowPaymentPopup(false)}
-                        onPaymentOptionSelect={handlePaymentOptionSelect}
                     />
                 )}
             </div>
